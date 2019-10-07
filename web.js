@@ -4,6 +4,7 @@ var express = require('express')
 var app = express();
 var path = require('path')
 var bodyParser = require('body-parser')
+var dao = require('./sageori_dao')
 
 // middleware
 //app.use(bodyParser.json());
@@ -19,6 +20,12 @@ var bodyParser = require('body-parser')
 //app.use('/api/auth', require('./api/auth'));
 app.get('/api/hello', function(req, res){
     res.send({data: 'Hello world'});
+});
+
+app.get('/api/get_members', function(req, res){
+    dao.get_members(function(rows){
+        res.send(rows);
+    });
 });
 
 // server
