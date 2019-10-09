@@ -7,15 +7,39 @@ var dao = function(){
     return this;
 };
 
-dao.prototype.get_members = function(success){
-    this.conn.query('SELECT MEMBER_ID, NAME, HP FROM TB_MEMBERS', function(err, rows){
-        if(err)
-            throw err;
+dao.prototype.get_members = function(){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('SELECT MEMBER_ID, NAME, HP, DATE_FORMAT(CREATED_DATE, \'%Y%m%d %H%i%S\') AS CREATED_DATE FROM TB_MEMBERS', function(err, rows){
+            if(err){
+                reject(err);            
+            }
 
-        console.log(rows);
+            console.log(rows);
+            resolve(rows);
+        }); 
+    });
 
-        success(rows);
-    }); 
-}
+    return promise;
+};
+
+dao.prototype.create_member = function(member){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('INSERT INTO TB_MEMBERS (NAME, HP, CREATED_DATE) VALUES('
+            + '"' + member.Name + '", '
+            + '"' + member.HP + '", NOW())', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to insert data. member : " + member.Name);
+                resolve();
+            });
+    });
+
+    return promise;
+};
 
 module.exports = new dao();
