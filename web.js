@@ -37,11 +37,45 @@ app.post('/api/create_member', function(req, res){
 
     var p = dao.create_member(member);
     p.then(function(){
-        res.send({result: 0});
+        res.send({result_code: 0});
     }, function(err){
         console.log(err);
 
-        res.send({result: -1});
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/update_member', function(req, res){
+    var member = req.body;
+    var id = member.ID;
+    var name = member.Name;
+    var phone = member.HP;
+    console.log("[POST: /api/update_member]" + name + ", " + phone);
+
+    var p = dao.update_member(member);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/delete_member', function(req, res){
+    var member = req.body;
+    var id = member.ID;
+    console.log("[POST: /api/delete_member]" + id);
+
+    var p = dao.delete_member(member);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
     });
 
 });

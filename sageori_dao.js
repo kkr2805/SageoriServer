@@ -10,7 +10,8 @@ var dao = function(){
 dao.prototype.get_members = function(){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('SELECT MEMBER_ID, NAME, HP, DATE_FORMAT(CREATED_DATE, \'%Y%m%d %H%i%S\') AS CREATED_DATE FROM TB_MEMBERS', function(err, rows){
+        _this.conn.query('SELECT MEMBER_ID, NAME, HP, DATE_FORMAT(CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+            +  'AS CREATED_DATE FROM TB_MEMBERS WHERE DELETED = "N"', function(err, rows){
             if(err){
                 reject(err);            
             }
@@ -35,6 +36,42 @@ dao.prototype.create_member = function(member){
                 }
 
                 console.log("[DB] Success to insert data. member : " + member.Name);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.update_member = function(member){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_MEMBERS SET NAME = "' + member.Name +  '", HP = "' + member.HP
+            + '" WHERE MEMBER_ID = "' + member.ID + '" ', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to update data. member : " + member.Name);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.delete_member = function(member){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_MEMBERS SET DELETED = "Y'
+            + '" WHERE MEMBER_ID = "' + member.ID + '" ', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to delete data. member : " + member.ID);
                 resolve();
             });
     });
