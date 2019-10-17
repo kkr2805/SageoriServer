@@ -80,6 +80,76 @@ app.post('/api/delete_member', function(req, res){
 
 });
 
+app.get('/api/get_machines', function(req, res){
+    var p = dao.get_machines();
+    p.then(function(result){
+        res.send(result);
+    });
+});
+
+app.get('/api/get_publishes', function(req, res){
+    var p = dao.get_publishes();
+    p.then(function(result){
+        res.send(result);
+    });
+});
+
+app.post('/api/create_publish', function(req, res){
+    var publish = req.body;
+    var machineID = publish.MachineID;
+    var memberID = publish.MemberID;
+    var credit = publish.Credit;
+    var bank = publish.Bank;
+
+    console.log("[POST: /api/create_publish]" + memberID);
+
+    var p = dao.create_publish(publish);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/update_publish', function(req, res){
+    var publish = req.body;
+    var machineID = publish.MachineID;
+    var memberID = publish.MemberID;
+    var credit = publish.Credit;
+    var bank = publish.Bank;
+
+    console.log("[POST: /api/update_publish]" + memberID);
+
+    var p = dao.update_publish(publish);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+
+});
+
+app.post('/api/delete_publish', function(req, res){
+    var publish = req.body;
+    var id = publish.ID;
+    console.log("[POST: /api/delete_publish]" + id);
+
+    var p = dao.delete_publish(publish);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+});
+
 // server
 var port = 3000;
 app.listen(port, function(){
