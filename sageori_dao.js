@@ -101,7 +101,7 @@ dao.prototype.get_machines = function(){ var _this = this;
 
 dao.prototype.get_publishes = function(){ var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+        _this.conn.query('SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
             +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"', function(err, rows){
             if(err){
                 reject(err);            
@@ -118,10 +118,11 @@ dao.prototype.get_publishes = function(){ var _this = this;
 dao.prototype.create_publish = function(publish){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('INSERT INTO TB_PUBLISHES (MACHINE_ID, MEMBER_ID, CREDIT, BANK, CREATED_DATE) VALUES('
+        _this.conn.query('INSERT INTO TB_PUBLISHES (MACHINE_ID, MEMBER_ID, CREDIT, BANK, IMAGE_FILE, CREATED_DATE) VALUES('
             + publish.MachineID + ', '
             + publish.MemberID + ', ' + publish.Credit + ', '
-            + publish.Bank + ', '
+            + publish.Bank + ', "'
+            + publish.Imagefile + '", '
             + ' NOW())', function(err){
                 if(err){
                     reject(err);
@@ -140,7 +141,7 @@ dao.prototype.update_publish = function(publish){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
         _this.conn.query('UPDATE TB_PUBLISHES SET MACHINE_ID = ' + publish.MachineID +  ', MEMBER_ID = ' + publish.MemberID + ', CREDIT = ' + publish.Credit + ', BANK = ' + publish.Bank
-            + ' WHERE publish_ID = ' + publish.ID + ' ', function(err){
+            + ', IMAGE_FILE = "' + publish.Imagefile + '"' + ' WHERE publish_ID = ' + publish.ID + ' ', function(err){
                 if(err){
                     reject(err);
                     return;

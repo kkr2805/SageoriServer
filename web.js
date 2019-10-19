@@ -5,6 +5,21 @@ var app = express();
 var path = require('path')
 var bodyParser = require('body-parser')
 var dao = require('./sageori_dao')
+var uuid = require("uuid");
+var multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    //cb(null, file.originalname) 
+    cb(null, uuid.v4() + path.extname(file.originalname));
+  }
+});
+var upload = multer({ storage: storage, 
+                     limits: {fieldSize: 25 * 1024 * 1024 }
+                    });
+
 
 // middleware
 app.use(bodyParser.json());
@@ -94,14 +109,15 @@ app.get('/api/get_publishes', function(req, res){
     });
 });
 
-app.post('/api/create_publish', function(req, res){
+app.post('/api/create_publish', upload.single('PublishImageFile'), function(req, res){
     var publish = req.body;
-    var machineID = publish.MachineID;
-    var memberID = publish.MemberID;
-    var credit = publish.Credit;
-    var bank = publish.Bank;
 
-    console.log("[POST: /api/create_publish]" + memberID);
+    if(req.file)
+        publish.Imagefile = req.file.filename;
+    else
+        publish.Imagefile = '';
+
+    console.log("[POST: /api/create_publish] image filename: " + req.file.filename);
 
     var p = dao.create_publish(publish);
     p.then(function(){
@@ -114,12 +130,17 @@ app.post('/api/create_publish', function(req, res){
 
 });
 
-app.post('/api/update_publish', function(req, res){
+app.post('/api/update_publish', upload.single('PublishImageFile'), function(req, res){
     var publish = req.body;
     var machineID = publish.MachineID;
     var memberID = publish.MemberID;
     var credit = publish.Credit;
     var bank = publish.Bank;
+
+    if(req.file)
+        publish.Imagefile = req.file.filename;
+    else
+        publish.Imagefile = '';
 
     console.log("[POST: /api/update_publish]" + memberID);
 
@@ -149,6 +170,8 @@ app.post('/api/delete_publish', function(req, res){
         res.send({result_code: -1});
     });
 });
+
+app.use('/static', express.static(__dirname + '/uploads'));
 
 // server
 var port = 3000;

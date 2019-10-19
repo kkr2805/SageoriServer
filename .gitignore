@@ -99,3 +99,5 @@ public
 tags
 .gitignore
 package-lock.json
+
+uploads/*
