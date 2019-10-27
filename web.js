@@ -171,6 +171,125 @@ app.post('/api/delete_publish', function(req, res){
     });
 });
 
+app.get('/api/get_return_items', function(req, res){
+    var p = dao.get_return_items();
+    p.then(function(result){
+        res.send(result);
+    });
+});
+
+app.post('/api/create_return_item', function(req, res){
+    var return_item = req.body;
+
+    console.log("[POST: /api/create_return_item]");
+
+    var p = dao.create_return_item(return_item);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/update_return_item', function(req, res){
+    var return_item = req.body;
+
+    console.log("[POST: /api/create_return_item]");
+
+    var p = dao.update_return_item(return_item);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/delete_return_item', function(req, res){
+    var return_item = req.body;
+    var id = return_item.ID;
+    console.log("[POST: /api/delete_return_item]" + id);
+
+    var p = dao.delete_return_item(return_item);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+});
+
+app.get('/api/get_score_items', function(req, res){
+    var p = dao.get_score_items();
+    p.then(function(result){
+        res.send(result);
+    });
+});
+
+app.get('/api/get_exchanges', function(req, res){
+
+    member_id = req.query.id;
+    
+    console.log("[GET get_exchanges] " + member_id);
+
+    var p = dao.get_exchanges(member_id);
+    p.then(function(result){
+        res.send(result);
+    });
+});
+
+app.post('/api/create_exchange', function(req, res){
+    var exchange = req.body;
+
+    console.log("[POST: /api/create_exchange]");
+
+    var p = dao.create_exchange(exchange);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/update_exchange', function(req, res){
+    var exchange = req.body;
+
+    console.log("[POST: /api/create_exchange]");
+
+    var p = dao.update_exchange(exchange);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+
+});
+
+app.post('/api/delete_exchange', function(req, res){
+    var exchange = req.body;
+    var id = exchange.ID;
+    console.log("[POST: /api/delete_return_item]" + id);
+
+    var p = dao.delete_exchange(exchange);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+});
 app.use('/static', express.static(__dirname + '/uploads'));
 
 // server

@@ -173,4 +173,175 @@ dao.prototype.delete_publish = function(publish){
     return promise;
 };
 
+dao.prototype.get_return_items = function(){ var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"', function(err, rows){
+            if(err){
+                reject(err);            
+            }
+
+            console.log(rows);
+            resolve(rows);
+        }); 
+    });
+
+    return promise;
+};
+
+dao.prototype.create_return_item = function(return_item){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, CREATED_DATE) VALUES('
+            + return_item.MachineID1 + ', '
+            + return_item.MachineID2 + ', '
+            + return_item.MemberID + ', '
+            + return_item.Return + ', '
+            + return_item.Service + ', '
+            + return_item.OnePone + ', '
+            + ' NOW())', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to insert data. return item : " + return_item.MemberID);
+                resolve();
+            });
+    });
+
+    return promise;
+}; 
+
+dao.prototype.update_return_item = function(return_item){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_RETURN SET MACHINE_ID1 = ' + return_item.MachineID1 
+            + ', MACHINE_ID2 = ' + return_item.MachineID2 
+            + ', MEMBER_ID = ' + return_item.MemberID 
+            + ', RETURN_POINT = ' + return_item.Return
+            + ', SERVICE = ' + return_item.Service
+            + ', ONE_P_ONE = ' + return_item.OnePone
+            + ' WHERE RETURN_ID = ' + return_item.ID + ' ', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to update data. return_item : " + return_item.MemberID);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.delete_return_item = function(return_item){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_RETURN SET DELETED = "Y'
+            + '" WHERE RETURN_ID = ' + return_item.ID, function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to delete data. return_item : " + return_item.ID);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.get_score_items = function(){ var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('SELECT MEMBER_ID, NAME AS MEMBER_NAME, 1 as SCORE, (SELECT SUM(CREDIT) + SUM(BANK) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N") AS PUBLISH'
+            + ', (SELECT SUM(RETURN_POINT) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N") AS RETURN_POINT' 
+            + ', (SELECT SUM(EXCHANGE) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N") AS EXCHANGE'
+            + ' FROM TB_MEMBERS AS A WHERE A.DELETED = "N"', function(err, rows){
+            if(err){
+                reject(err);            
+            }
+
+            console.log(rows);
+            resolve(rows);
+        }); 
+    });
+
+    return promise;
+};
+
+dao.prototype.get_exchanges = function(member_id){ 
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('SELECT A.EXCHANGE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.EXCHANGE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+            +  'AS CREATED_DATE FROM TB_EXCHANGE AS A JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.MEMBER_ID = ' + member_id + ' AND A.DELETED = "N"', function(err, rows){
+            if(err){
+                reject(err);            
+            }
+
+            console.log(rows);
+            resolve(rows);
+        }); 
+    });
+
+    return promise;
+};
+
+dao.prototype.create_exchange = function(exchange){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('INSERT INTO TB_EXCHANGE (MEMBER_ID, EXCHANGE, CREATED_DATE) VALUES('
+            + exchange.MemberID + ', ' + exchange.Exchange + ', '
+            + ' NOW())', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to insert data. exchange : " + exchange.MemberID);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.update_exchange = function(exchange){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_EXCHANGE SET MEMBER_ID = ' + exchange.MemberID + ', EXCHANGE = ' + exchange.Exchange 
+            + ' WHERE exchange_ID = ' + exchange.ID + ' ', function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to update data. exchange : " + exchange.MemberID);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
+dao.prototype.delete_exchange = function(exchange){
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        _this.conn.query('UPDATE TB_EXCHANGE SET DELETED = "Y'
+            + '" WHERE EXCHANGE_ID = ' + exchange.ID, function(err){
+                if(err){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to delete data. exchange : " + exchange.ID);
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
 module.exports = new dao();
