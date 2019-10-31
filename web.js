@@ -197,7 +197,7 @@ app.post('/api/create_return_item', function(req, res){
 app.post('/api/update_return_item', function(req, res){
     var return_item = req.body;
 
-    console.log("[POST: /api/create_return_item]");
+    console.log("[POST: /api/update_return_item]");
 
     var p = dao.update_return_item(return_item);
     p.then(function(){
@@ -263,7 +263,7 @@ app.post('/api/create_exchange', function(req, res){
 app.post('/api/update_exchange', function(req, res){
     var exchange = req.body;
 
-    console.log("[POST: /api/create_exchange]");
+    console.log("[POST: /api/update_exchange]");
 
     var p = dao.update_exchange(exchange);
     p.then(function(){
