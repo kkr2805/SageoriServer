@@ -99,10 +99,28 @@ dao.prototype.get_machines = function(){ var _this = this;
     return promise;
 };
 
-dao.prototype.get_publishes = function(){ var _this = this;
+dao.prototype.get_publishes = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-            +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"', function(err, rows){
+        var sql_query = 'SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+                    +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"';
+
+        if(params.MachineID){
+            sql_query += ' AND A.MACHINE_ID = ' + params.MachineID;
+        }
+
+        if(params.MemberID){
+            sql_query += ' AND A.MEMBER_ID = ' + params.MemberID;
+        }
+
+        if(params.Date){
+            sql_query += ' AND DATE(A.CREATED_DATE) = "' + params.Date + '"';
+        }else {
+            sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
+        }
+
+        console.log(sql_query);
+
+        _this.conn.query(sql_query, function(err, rows){
             if(err){
                 reject(err);            
             }

@@ -103,7 +103,9 @@ app.get('/api/get_machines', function(req, res){
 });
 
 app.get('/api/get_publishes', function(req, res){
-    var p = dao.get_publishes();
+    var params = req.query;
+
+    var p = dao.get_publishes(params);
     p.then(function(result){
         res.send(result);
     });
