@@ -114,10 +114,13 @@ dao.prototype.get_publishes = function(params){ var _this = this;
 
         if(params.Date){
             sql_query += ' AND DATE(A.CREATED_DATE) = "' + params.Date + '"';
-        }else {
+        }else if(params.DateStart && params.DateEnd){
+            sql_query += ' AND DATE(A.CREATED_DATE) BETWEEN DATE("'+ params.DateStart + '") AND DATE("' + params.DateEnd + '")';
+        }else{
             sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
         }
 
+        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
         console.log(sql_query);
 
         _this.conn.query(sql_query, function(err, rows){
