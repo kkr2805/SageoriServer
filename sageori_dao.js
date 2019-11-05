@@ -194,10 +194,32 @@ dao.prototype.delete_publish = function(publish){
     return promise;
 };
 
-dao.prototype.get_return_items = function(){ var _this = this;
+dao.prototype.get_return_items = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"', function(err, rows){
+
+        var sql_query = 'SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, A.IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"';
+
+        if(params && params.MachineID){
+            sql_query += ' AND A.MACHINE_ID = ' + params.MachineID;
+        }
+
+        if(params && params.MemberID){
+            sql_query += ' AND A.MEMBER_ID = ' + params.MemberID;
+        }
+
+        if(params && params.Date){
+            sql_query += ' AND DATE(A.CREATED_DATE) = "' + params.Date + '"';
+        }else if(params && params.DateStart && params.DateEnd){
+            sql_query += ' AND DATE(A.CREATED_DATE) BETWEEN DATE("'+ params.DateStart + '") AND DATE("' + params.DateEnd + '")';
+        }else{
+            sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
+        }
+
+        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
+        console.log(sql_query);
+
+        _this.conn.query(sql_query, function(err, rows){
             if(err){
                 reject(err);            
             }
@@ -213,13 +235,14 @@ dao.prototype.get_return_items = function(){ var _this = this;
 dao.prototype.create_return_item = function(return_item){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, CREATED_DATE) VALUES('
+        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, IMAGE_FILE, CREATED_DATE) VALUES('
             + return_item.MachineID1 + ', '
             + return_item.MachineID2 + ', '
             + return_item.MemberID + ', '
             + return_item.Return + ', '
             + return_item.Service + ', '
             + return_item.OnePone + ', '
+            + '"' + return_item.Imagefile + '", '
             + ' NOW())', function(err){
                 if(err){
                     reject(err);
@@ -243,6 +266,7 @@ dao.prototype.update_return_item = function(return_item){
             + ', RETURN_POINT = ' + return_item.Return
             + ', SERVICE = ' + return_item.Service
             + ', ONE_P_ONE = ' + return_item.OnePone
+            + ', IMAGE_FILE = "' + return_item.Imagefile + '"'
             + ' WHERE RETURN_ID = ' + return_item.ID + ' ', function(err){
                 if(err){
                     reject(err);
@@ -278,6 +302,10 @@ dao.prototype.delete_return_item = function(return_item){
 dao.prototype.get_score_items = function(){ var _this = this;
     var promise = new Promise(function(resolve, reject){
         _this.conn.query('SELECT MEMBER_ID, NAME AS MEMBER_NAME' 
+            + ', (SELECT COALESCE(SUM(CREDIT), 0) + COALESCE(SUM(BANK), 0) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N" AND DATE(B.CREATED_DATE) < CURDATE()) - ' 
+            + '(SELECT COALESCE(SUM(RETURN_POINT), 0) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) < CURDATE()) - '
+            + '(SELECT COALESCE(SUM(EXCHANGE), 0) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) < CURDATE())'
+            + ' AS SCORE'
             + ', (SELECT SUM(CREDIT) + SUM(BANK) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N" AND DATE(B.CREATED_DATE) = CURDATE()) AS PUBLISH'
             + ', (SELECT SUM(RETURN_POINT) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) = CURDATE()) AS RETURN_POINT' 
             + ', (SELECT SUM(EXCHANGE) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) = CURDATE()) AS EXCHANGE'

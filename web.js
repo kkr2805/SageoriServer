@@ -174,16 +174,23 @@ app.post('/api/delete_publish', function(req, res){
 });
 
 app.get('/api/get_return_items', function(req, res){
-    var p = dao.get_return_items();
+    var params = req.query;
+
+    var p = dao.get_return_items(params);
     p.then(function(result){
         res.send(result);
     });
 });
 
-app.post('/api/create_return_item', function(req, res){
+app.post('/api/create_return_item', upload.single('PublishImageFile'), function(req, res){
     var return_item = req.body;
 
-    console.log("[POST: /api/create_return_item]");
+    if(req.file)
+        return_item.Imagefile = req.file.filename;
+    else
+        return_item.Imagefile = '';
+
+    console.log("[POST: /api/create_return] image filename: " + req.file.filename);
 
     var p = dao.create_return_item(return_item);
     p.then(function(){
@@ -196,10 +203,15 @@ app.post('/api/create_return_item', function(req, res){
 
 });
 
-app.post('/api/update_return_item', function(req, res){
+app.post('/api/update_return_item', upload.single('PublishImageFile'), function(req, res){
     var return_item = req.body;
 
-    console.log("[POST: /api/update_return_item]");
+    if(req.file)
+        return_item.Imagefile = req.file.filename;
+    else
+        returm_item.Imagefile = '';
+
+    console.log("[POST: /api/create_return] image filename: " + req.file.filename);
 
     var p = dao.update_return_item(return_item);
     p.then(function(){
