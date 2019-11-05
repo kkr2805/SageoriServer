@@ -201,7 +201,8 @@ dao.prototype.get_return_items = function(params){ var _this = this;
             +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"';
 
         if(params && params.MachineID){
-            sql_query += ' AND A.MACHINE_ID = ' + params.MachineID;
+            sql_query += ' AND (A.MACHINE_ID1 = ' + params.MachineID;
+            sql_query += ' OR A.MACHINE_ID2 = ' + params.MachineID + ')';
         }
 
         if(params && params.MemberID){
