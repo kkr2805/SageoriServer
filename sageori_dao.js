@@ -398,4 +398,29 @@ dao.prototype.delete_exchange = function(exchange){
     return promise;
 };
 
+dao.prototype.confirm_admin = function(password){
+
+    var _this = this;
+    var promise = new Promise(function(resolve, reject){
+        var query = 'SELECT COUNT(USER_ID) AS USER_COUNT FROM TB_USERS WHERE USER_ID = "ADMIN" AND USER_PASSWORD = PASSWORD("' 
+            + password
+            +  '");';
+        console.log(query);
+        _this.conn.query(query, function(err, rows){
+
+                console.log(rows);
+
+                if(err || !rows || rows.length == 0 || rows[0].USER_COUNT == 0){
+                    reject(err);
+                    return;
+                }
+
+                console.log("[DB] Success to confirm admin.");
+                resolve();
+            });
+    });
+
+    return promise;
+};
+
 module.exports = new dao();

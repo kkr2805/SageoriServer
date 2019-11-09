@@ -304,6 +304,21 @@ app.post('/api/delete_exchange', function(req, res){
         res.send({result_code: -1});
     });
 });
+
+app.post('/api/confirm_admin', function(req, res){
+    var data = req.body;
+    var password = data.password;
+    console.log("[POST: /api/confirm_admin]");
+
+    var p = dao.confirm_admin(password);
+    p.then(function(){
+        res.send({result_code: 0});
+    }, function(err){
+        console.log(err);
+
+        res.send({result_code: -1});
+    });
+});
 app.use('/static', express.static(__dirname + '/uploads'));
 
 // server
