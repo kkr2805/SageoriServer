@@ -4,6 +4,9 @@ var mysql = require('mysql');
 
 var dao = function(){
     this.conn = mysql.createConnection(dbconfig);   
+    this.conn.on('error', function(){
+        console.log(err.code);
+    });
     return this;
 };
 
