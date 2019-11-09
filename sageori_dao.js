@@ -105,7 +105,7 @@ dao.prototype.get_machines = function(){ var _this = this;
 dao.prototype.get_publishes = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
         var sql_query = 'SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-                    +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"';
+                    +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" AND B.DELETED = "N"';
 
         if(params.MachineID){
             sql_query += ' AND A.MACHINE_ID = ' + params.MachineID;
@@ -201,7 +201,7 @@ dao.prototype.get_return_items = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
 
         var sql_query = 'SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, A.IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N"';
+            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" AND B.DELETED = "N"';
 
         if(params && params.MachineID){
             sql_query += ' AND (A.MACHINE_ID1 = ' + params.MachineID;
