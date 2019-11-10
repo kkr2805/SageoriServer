@@ -164,8 +164,15 @@ dao.prototype.create_publish = function(publish){
 dao.prototype.update_publish = function(publish){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('UPDATE TB_PUBLISHES SET MACHINE_ID = ' + publish.MachineID +  ', MEMBER_ID = ' + publish.MemberID + ', CREDIT = ' + publish.Credit + ', BANK = ' + publish.Bank
-            + ', IMAGE_FILE = "' + publish.Imagefile + '"' + ' WHERE publish_ID = ' + publish.ID + ' ', function(err){
+        var query = 'UPDATE TB_PUBLISHES SET MACHINE_ID = ' + publish.MachineID +  ', MEMBER_ID = ' + publish.MemberID + ', CREDIT = ' + publish.Credit + ', BANK = ' + publish.Bank
+
+        if(publish.Imagefile){
+            query = query + ', IMAGE_FILE = "' + publish.Imagefile + '"';
+        }
+
+        query = query + ' WHERE publish_ID = ' + publish.ID + ' ';
+        
+        _this.conn.query(query, function(err){
                 if(err){
                     reject(err);
                     return;
@@ -264,14 +271,21 @@ dao.prototype.create_return_item = function(return_item){
 dao.prototype.update_return_item = function(return_item){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('UPDATE TB_RETURN SET MACHINE_ID1 = ' + return_item.MachineID1 
-            + ', MACHINE_ID2 = ' + return_item.MachineID2 
-            + ', MEMBER_ID = ' + return_item.MemberID 
-            + ', RETURN_POINT = ' + return_item.Return
-            + ', SERVICE = ' + return_item.Service
-            + ', ONE_P_ONE = ' + return_item.OnePone
-            + ', IMAGE_FILE = "' + return_item.Imagefile + '"'
-            + ' WHERE RETURN_ID = ' + return_item.ID + ' ', function(err){
+        var query = 'UPDATE TB_RETURN SET MACHINE_ID1 = ' + return_item.MachineID1 
+                    + ', MACHINE_ID2 = ' + return_item.MachineID2 
+                    + ', MEMBER_ID = ' + return_item.MemberID 
+                    + ', RETURN_POINT = ' + return_item.Return
+                    + ', SERVICE = ' + return_item.Service
+                    + ', ONE_P_ONE = ' + return_item.OnePone;
+
+        if(returm.Imagefile){
+            query = query + ', IMAGE_FILE = "' + return_item.Imagefile + '"';
+
+        }
+
+        query = query + ' WHERE RETURN_ID = ' + return_item.ID + ' ';
+
+        _this.conn.query(query, function(err){
                 if(err){
                     reject(err);
                     return;
