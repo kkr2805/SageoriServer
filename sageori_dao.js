@@ -3,11 +3,16 @@ var dbconfig = require('./dbconfig');
 var mysql = require('mysql');
 
 var dao = function(){
+    this.create_connection();
+    return this;
+};
+
+dao.prototype.create_connection = function(){
     this.conn = mysql.createConnection(dbconfig);   
     this.conn.on('error', function(err){
         console.log(err.code);
+        this.create_connection();
     });
-    return this;
 };
 
 dao.prototype.get_members = function(){
