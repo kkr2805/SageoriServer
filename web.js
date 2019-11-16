@@ -182,15 +182,21 @@ app.get('/api/get_return_items', function(req, res){
     });
 });
 
-app.post('/api/create_return_item', upload.single('PublishImageFile'), function(req, res){
+var multer_create_return = upload.fields([{name: 'ReturnImageFile1'}, {name: 'ReturnImageFile2'}]);
+app.post('/api/create_return_item', multer_create_return, function(req, res){
     var return_item = req.body;
 
-    if(req.file)
-        return_item.Imagefile = req.file.filename;
+    if(req.files['ReturnImageFile1'] && req.files['ReturnImageFile1'][0])
+        return_item.Imagefile1 = req.files['ReturnImageFile1'][0].filename;
     else
-        return_item.Imagefile = '';
+        return_item.Imagefile1 = '';
 
-    console.log("[POST: /api/create_return] image filename: " + req.file.filename);
+    if(req.files['ReturnImageFile2'] && req.files['ReturnImageFile2'][0])
+        return_item.Imagefile2 = req.files['ReturnImageFile2'][0].filename;
+    else
+        return_item.Imagefile2 = '';
+
+    console.log("[POST: /api/create_return] image filename");
 
     var p = dao.create_return_item(return_item);
     p.then(function(){
@@ -203,15 +209,21 @@ app.post('/api/create_return_item', upload.single('PublishImageFile'), function(
 
 });
 
-app.post('/api/update_return_item', upload.single('PublishImageFile'), function(req, res){
+var multer_update_return = upload.fields([{name: 'ReturnImageFile1'}, {name: 'ReturnImageFile2'}]);
+app.post('/api/update_return_item', multer_update_return, function(req, res){
     var return_item = req.body;
 
-    if(req.file)
-        return_item.Imagefile = req.file.filename;
+    if(req.files['ReturnImageFile1'] && req.files['ReturnImageFile1'][0])
+        return_item.Imagefile1 = req.files['ReturnImageFile1'][0].filename;
     else
-        returm_item.Imagefile = '';
+        return_item.Imagefile1 = '';
 
-    console.log("[POST: /api/create_return] image filename: " + req.file.filename);
+    if(req.files['ReturnImageFile2'] && req.files['ReturnImageFile2'][0])
+        return_item.Imagefile2 = req.files['ReturnImageFile2'][0].filename;
+    else
+        return_item.Imagefile2 = '';
+
+    console.log("[POST: /api/update_return_item]");
 
     var p = dao.update_return_item(return_item);
     p.then(function(){

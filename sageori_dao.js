@@ -212,7 +212,7 @@ dao.prototype.delete_publish = function(publish){
 dao.prototype.get_return_items = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
 
-        var sql_query = 'SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, A.IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
+        var sql_query = 'SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, A.IMAGE_FILE1, A.IMAGE_FILE2, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
             +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" AND B.DELETED = "N"';
 
         if(params && params.MachineID){
@@ -251,14 +251,15 @@ dao.prototype.get_return_items = function(params){ var _this = this;
 dao.prototype.create_return_item = function(return_item){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, IMAGE_FILE, CREATED_DATE) VALUES('
+        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, IMAGE_FILE1, IMAGE_FILE2, CREATED_DATE) VALUES('
             + return_item.MachineID1 + ', '
             + return_item.MachineID2 + ', '
             + return_item.MemberID + ', '
             + return_item.Return + ', '
             + return_item.Service + ', '
             + return_item.OnePone + ', '
-            + '"' + return_item.Imagefile + '", '
+            + '"' + return_item.Imagefile1 + '", '
+            + '"' + return_item.Imagefile2 + '", '
             + ' NOW())', function(err){
                 if(err){
                     reject(err);
@@ -283,12 +284,17 @@ dao.prototype.update_return_item = function(return_item){
                     + ', SERVICE = ' + return_item.Service
                     + ', ONE_P_ONE = ' + return_item.OnePone;
 
-        if(returm.Imagefile){
-            query = query + ', IMAGE_FILE = "' + return_item.Imagefile + '"';
+        if(return_item.Imagefile1){
+            query = query + ', IMAGE_FILE1 = "' + return_item.Imagefile1 + '"';
+        }
 
+        if(return_item.Imagefile2){
+            query = query + ', IMAGE_FILE2 = "' + return_item.Imagefile2 + '"';
         }
 
         query = query + ' WHERE RETURN_ID = ' + return_item.ID + ' ';
+
+        console.log(query);
 
         _this.conn.query(query, function(err){
                 if(err){
