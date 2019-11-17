@@ -8,10 +8,11 @@ var dao = function(){
 };
 
 dao.prototype.create_connection = function(){
+    var _this = this;
     this.conn = mysql.createConnection(dbconfig);   
     this.conn.on('error', function(err){
         console.log(err.code);
-        this.create_connection();
+        _this.create_connection();
     });
 };
 
@@ -128,7 +129,7 @@ dao.prototype.get_publishes = function(params){ var _this = this;
             sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
         }
 
-        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
+        sql_query += ' ORDER BY MEMBER_NAME ASC, A.CREATED_DATE DESC ';
         console.log(sql_query);
 
         _this.conn.query(sql_query, function(err, rows){
@@ -232,7 +233,7 @@ dao.prototype.get_return_items = function(params){ var _this = this;
             sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
         }
 
-        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
+        sql_query += ' ORDER BY MEMBER_NAME ASC, A.CREATED_DATE DESC ';
         console.log(sql_query);
 
         _this.conn.query(sql_query, function(err, rows){
@@ -251,16 +252,20 @@ dao.prototype.get_return_items = function(params){ var _this = this;
 dao.prototype.create_return_item = function(return_item){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
-        _this.conn.query('INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, IMAGE_FILE1, IMAGE_FILE2, CREATED_DATE) VALUES('
-            + return_item.MachineID1 + ', '
-            + return_item.MachineID2 + ', '
-            + return_item.MemberID + ', '
-            + return_item.Return + ', '
-            + return_item.Service + ', '
-            + return_item.OnePone + ', '
-            + '"' + return_item.Imagefile1 + '", '
-            + '"' + return_item.Imagefile2 + '", '
-            + ' NOW())', function(err){
+        var query = 'INSERT INTO TB_RETURN (MACHINE_ID1, MACHINE_ID2, MEMBER_ID, RETURN_POINT, SERVICE, ONE_P_ONE, IMAGE_FILE1, IMAGE_FILE2, CREATED_DATE) VALUES('
+                    + return_item.MachineID1 + ', '
+                    + (return_item.MachineID2 || 0) + ', '
+                    + return_item.MemberID + ', '
+                    + return_item.Return + ', '
+                    + return_item.Service + ', '
+                    + return_item.OnePone + ', '
+                    + '"' + return_item.Imagefile1 + '", '
+                    + '"' + return_item.Imagefile2 + '", '
+                    + ' NOW())';
+
+        console.log(query);
+
+        _this.conn.query(query, function(err){
                 if(err){
                     reject(err);
                     return;
@@ -278,7 +283,7 @@ dao.prototype.update_return_item = function(return_item){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
         var query = 'UPDATE TB_RETURN SET MACHINE_ID1 = ' + return_item.MachineID1 
-                    + ', MACHINE_ID2 = ' + return_item.MachineID2 
+                    + ', MACHINE_ID2 = ' + (return_item.MachineID2 || 0) 
                     + ', MEMBER_ID = ' + return_item.MemberID 
                     + ', RETURN_POINT = ' + return_item.Return
                     + ', SERVICE = ' + return_item.Service
@@ -288,7 +293,9 @@ dao.prototype.update_return_item = function(return_item){
             query = query + ', IMAGE_FILE1 = "' + return_item.Imagefile1 + '"';
         }
 
-        if(return_item.Imagefile2){
+        if(!return_item.MachineID2){
+            query = query + ', IMAGE_FILE2 = ""';
+        }else if(return_item.MachineID2 && return_item.Imagefile2){
             query = query + ', IMAGE_FILE2 = "' + return_item.Imagefile2 + '"';
         }
 

@@ -196,6 +196,11 @@ app.post('/api/create_return_item', multer_create_return, function(req, res){
     else
         return_item.Imagefile2 = '';
 
+    // 기계번호2가 없으면 사진2도 빈값
+    if(!return_item.MachineID2) {
+        return_item.Imagefile2 = '';
+    }
+
     console.log("[POST: /api/create_return] image filename");
 
     var p = dao.create_return_item(return_item);
@@ -222,6 +227,11 @@ app.post('/api/update_return_item', multer_update_return, function(req, res){
         return_item.Imagefile2 = req.files['ReturnImageFile2'][0].filename;
     else
         return_item.Imagefile2 = '';
+
+    // 기계번호2가 없으면 사진2도 빈값
+    if(!return_item.MachineID2) {
+        return_item.Imagefile2 = '';
+    }
 
     console.log("[POST: /api/update_return_item]");
 
