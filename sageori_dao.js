@@ -20,7 +20,7 @@ dao.prototype.get_members = function(){
     var _this = this;
     var promise = new Promise(function(resolve, reject){
         _this.conn.query('SELECT MEMBER_ID, NAME, HP, DATE_FORMAT(CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-            +  'AS CREATED_DATE FROM TB_MEMBERS WHERE DELETED = "N"', function(err, rows){
+            +  'AS CREATED_DATE FROM TB_MEMBERS WHERE DELETED = "N" ORDER BY NAME ASC', function(err, rows){
             if(err){
                 reject(err);            
             }
@@ -129,7 +129,7 @@ dao.prototype.get_publishes = function(params){ var _this = this;
             sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
         }
 
-        sql_query += ' ORDER BY MEMBER_NAME ASC, A.CREATED_DATE DESC ';
+        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
         console.log(sql_query);
 
         _this.conn.query(sql_query, function(err, rows){
@@ -233,7 +233,7 @@ dao.prototype.get_return_items = function(params){ var _this = this;
             sql_query += ' AND DATE(A.CREATED_DATE) = DATE(NOW())';
         }
 
-        sql_query += ' ORDER BY MEMBER_NAME ASC, A.CREATED_DATE DESC ';
+        sql_query += ' ORDER BY A.CREATED_DATE DESC ';
         console.log(sql_query);
 
         _this.conn.query(sql_query, function(err, rows){
@@ -345,7 +345,7 @@ dao.prototype.get_score_items = function(){ var _this = this;
             + ', (SELECT SUM(CREDIT) + SUM(BANK) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N" AND DATE(B.CREATED_DATE) = CURDATE()) AS PUBLISH'
             + ', (SELECT SUM(RETURN_POINT) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) = CURDATE()) AS RETURN_POINT' 
             + ', (SELECT SUM(EXCHANGE) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) = CURDATE()) AS EXCHANGE'
-            + ' FROM TB_MEMBERS AS A WHERE A.DELETED = "N"', function(err, rows){
+            + ' FROM TB_MEMBERS AS A WHERE A.DELETED = "N" ORDER BY NAME ASC', function(err, rows){
             if(err){
                 reject(err);            
             }
