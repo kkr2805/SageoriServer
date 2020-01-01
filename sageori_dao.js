@@ -111,7 +111,7 @@ dao.prototype.get_machines = function(){ var _this = this;
 dao.prototype.get_publishes = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
         var sql_query = 'SELECT A.PUBLISH_ID, A.MACHINE_ID, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.CREDIT, A.BANK, IMAGE_FILE, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-                    +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" AND B.DELETED = "N"';
+            +  'AS CREATED_DATE FROM TB_PUBLISHES AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" /*AND B.DELETED = "N"*/';
 
         if(params.MachineID){
             sql_query += ' AND A.MACHINE_ID = ' + params.MachineID;
@@ -214,7 +214,7 @@ dao.prototype.get_return_items = function(params){ var _this = this;
     var promise = new Promise(function(resolve, reject){
 
         var sql_query = 'SELECT A.RETURN_ID, A.MACHINE_ID1, A.MACHINE_ID2, B.NAME AS MEMBER_NAME, A.MEMBER_ID, A.RETURN_POINT, A.SERVICE, A.ONE_P_ONE, A.IMAGE_FILE1, A.IMAGE_FILE2, DATE_FORMAT(A.CREATED_DATE, \'%Y%m%d %H%i%S\') ' 
-            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" AND B.DELETED = "N"';
+            +  'AS CREATED_DATE FROM TB_RETURN AS A LEFT JOIN TB_MEMBERS AS B ON A.MEMBER_ID = B.MEMBER_ID WHERE A.DELETED = "N" /*AND B.DELETED = "N"*/';
 
         if(params && params.MachineID){
             sql_query += ' AND (A.MACHINE_ID1 = ' + params.MachineID;
@@ -346,6 +346,39 @@ dao.prototype.get_score_items = function(){ var _this = this;
             + ', (SELECT SUM(RETURN_POINT) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) = CURDATE()) AS RETURN_POINT' 
             + ', (SELECT SUM(EXCHANGE) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) = CURDATE()) AS EXCHANGE'
             + ' FROM TB_MEMBERS AS A WHERE A.DELETED = "N" ORDER BY NAME ASC', function(err, rows){
+            if(err){
+                reject(err);            
+            }
+
+            console.log(rows);
+            resolve(rows);
+        }); 
+    });
+
+    return promise;
+};
+
+dao.prototype.get_score_item = function(memberID){
+    var _this = this;
+    console.log(memberID);
+    var promise = new Promise(function(resolve, reject){
+        var query = 'SELECT MEMBER_ID, NAME AS MEMBER_NAME' 
+                    + ', (SELECT COALESCE(SUM(CREDIT), 0) + COALESCE(SUM(BANK), 0) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N" AND DATE(B.CREATED_DATE) < CURDATE()) - ' 
+                    + '(SELECT COALESCE(SUM(RETURN_POINT), 0) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) < CURDATE()) - '
+                    + '(SELECT COALESCE(SUM(EXCHANGE), 0) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) < CURDATE())'
+                    + ' AS SCORE'
+                    + ', (SELECT SUM(CREDIT) + SUM(BANK) FROM TB_PUBLISHES AS B WHERE A.MEMBER_ID = B.MEMBER_ID AND B.DELETED = "N" AND DATE(B.CREATED_DATE) = CURDATE()) AS PUBLISH'
+                    + ', (SELECT SUM(RETURN_POINT) FROM TB_RETURN AS C WHERE A.MEMBER_ID = C.MEMBER_ID AND C.DELETED = "N" AND DATE(C.CREATED_DATE) = CURDATE()) AS RETURN_POINT' 
+                    + ', (SELECT SUM(EXCHANGE) FROM TB_EXCHANGE AS D WHERE A.MEMBER_ID = D.MEMBER_ID AND D.DELETED = "N" AND DATE(D.CREATED_DATE) = CURDATE()) AS EXCHANGE'
+            + ' FROM TB_MEMBERS AS A WHERE'; 
+
+            if(memberID){
+                query = query + ' A.MEMBER_ID = "' + memberID + '"'
+            }
+
+        console.log(query);
+
+        _this.conn.query(query, function(err, rows){
             if(err){
                 reject(err);            
             }

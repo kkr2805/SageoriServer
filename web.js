@@ -268,6 +268,15 @@ app.get('/api/get_score_items', function(req, res){
     });
 });
 
+app.get('/api/get_score_item', function(req, res){
+    var memberID = req.query.id;
+    var p = dao.get_score_item(memberID);
+    p.then(function(result){
+        var scoreItem = result[0] || {};
+        res.send(scoreItem);
+    });
+});
+
 app.get('/api/get_exchanges', function(req, res){
 
     member_id = req.query.id;
